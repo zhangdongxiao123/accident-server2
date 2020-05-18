@@ -37,6 +37,12 @@ public class ReasonController {
     @ApiOperation("添加事故原因")
     @PostMapping("add")
     public Result<String> addReason(ReasonParam param) {
+        if (StringUtils.isBlank(param.getReaname())) {
+            return Result.createByErrorMessage("事故原因名称不能为空");
+        }
+        if (checkReasonExist(param.getReaname())) {
+            return Result.createByErrorMessage("事故原因已存在");
+        }
         Reason reason = new Reason();
         BeanUtils.copyProperties(param, reason);
         reason.setReaid(UUID.randomUUID().toString());
@@ -44,18 +50,27 @@ public class ReasonController {
         return Result.createBySuccess();
     }
 
+    private boolean checkReasonExist(String reaname) {
+        Reason record = new Reason();
+        record.setReaname(reaname);
+        return reasonMapper.selectCount(record) > 0;
+    }
+
     @ApiOperation("更新事故原因")
     @PostMapping("update")
     public Result<String> updateReason(Reason param) {
         Reason reason = reasonMapper.selectByPrimaryKey(param.getReaid());
-        if(reason==null){
+        if (reason == null) {
             return Result.createByErrorMessage("事故原因不存在2");
         }
-        if(StringUtils.isBlank(param.getReaname())){
+        if (StringUtils.isBlank(param.getReaname())) {
             return Result.createByErrorMessage("事故原因不能为空");
         }
+        if (checkReasonExist(param.getReaname())) {
+            return Result.createByErrorMessage("事故原因已存在");
+        }
 
-        Airdetail record=new Airdetail();
+        Airdetail record = new Airdetail();
         record.setAirwhy(reason.getReaname());
         List<Airdetail> select = airdetailMapper.select(record);
         for (Airdetail item : select) {
@@ -70,11 +85,11 @@ public class ReasonController {
     @PostMapping("delete")
     public Result<String> deleteReason(@RequestParam String reaid) {
         Reason reason = reasonMapper.selectByPrimaryKey(reaid);
-        if(reason==null){
+        if (reason == null) {
             return Result.createByErrorMessage("事故原因不存在");
         }
 
-        Airdetail record=new Airdetail();
+        Airdetail record = new Airdetail();
         record.setAirwhy(reason.getReaname());
         List<Airdetail> select = airdetailMapper.select(record);
         for (Airdetail item : select) {
@@ -89,7 +104,7 @@ public class ReasonController {
     @ApiOperation(value = "单条件查询", notes = "只需要传入关键字，会匹配事故详情的所有的数据，找出能匹配上的")
     @GetMapping("singleSelect")
     public Result<List<Reason>> singleSelect(String keyword) {
-        if(StringUtils.isBlank(keyword)){
+        if (StringUtils.isBlank(keyword)) {
             List<Reason> list = reasonMapper.selectAll();
             return Result.createBySuccess(list);
         }
@@ -109,7 +124,7 @@ public class ReasonController {
     @GetMapping("detail")
     public Result<Reason> detail(@RequestParam String reasonId) {
         Reason reason = reasonMapper.selectByPrimaryKey(reasonId);
-        if(reason==null){
+        if (reason == null) {
             return Result.createByErrorMessage("查询失败");
         }
         return Result.createBySuccess(reason);
