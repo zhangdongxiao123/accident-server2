@@ -12,8 +12,9 @@ public class AppProperties {
      */
     private String title;
 
-    private String endPoint = "http://117.159.17.27:10308";
+
+    private String endPoint = "http://39.97.219.174:9000";
     private String ak = "admin";
-    private String sk = "19941108Aa";
-    private String bn = "avatar";
+    private String sk = "admin123";
+    private String bn = "aviation";
 }
